@@ -1,7 +1,7 @@
 {
-  "name": "Wzburzenie — tracker emocji",
-  "short_name": "Wzburzenie",
-  "description": "Rejestruj poziom wzburzenia w ciągu dnia",
+  "name": "Napięcie — tracker emocji",
+  "short_name": "Wkurwiomierz",
+  "description": "Rejestruj poziom swojego stanu emocjonalnego w ciągu dnia",
   "start_url": "/index.html",
   "display": "standalone",
   "orientation": "portrait",
