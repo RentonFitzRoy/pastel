@@ -1,8 +1,8 @@
 {
   "name": "Napięcie — tracker emocji",
-  "short_name": "Wkurwiomierz",
+  "short_name": "Wkurwomir",
   "description": "Rejestruj poziom swojego stanu emocjonalnego w ciągu dnia",
-  "start_url": "/pastel/",
+  "start_url": "/pastel/index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f0f0e",
