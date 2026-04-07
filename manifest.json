@@ -2,7 +2,7 @@
   "name": "Napięcie — tracker emocji",
   "short_name": "Wkurwiomierz",
   "description": "Rejestruj poziom swojego stanu emocjonalnego w ciągu dnia",
-  "start_url": "/index.html",
+  "start_url": "/pastel/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f0f0e",
