@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wzburzenie">
+<title>Wzburzenie</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0e;
+    --surface: #1a1a18;
+    --surface2: #222220;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede6;
+    --muted: #888780;
+    --calm: #1D9E75;
+    --warn: #EF9F27;
+    --high: #E24B4A;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .logo em { color: var(--high); font-style: normal; }
+
+  .time-badge {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    gap: 6px;
+    padding: 10px 20px;
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-btn:active { transform: scale(0.95); }
+  .nav-btn.active {
+    background: var(--high);
+    border-color: var(--high);
+    color: white;
+  }
+
+  /* SCREENS */
+  .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; flex-direction: column; gap: 16px; }
+  .screen.active { display: flex; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* NOTIFICATION PERMISSION BANNER */
+  .perm-banner {
+    background: var(--surface);
+    border: 0.5px solid var(--warn);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .perm-banner.hidden { display: none; }
+  .perm-icon { font-size: 20px; flex-shrink: 0; }
+  .perm-text { flex: 1; font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .perm-text strong { color: var(--text); display: block; font-weight: 500; margin-bottom: 2px; }
+  .perm-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: var(--warn);
+    color: #0f0f0e;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* LOG CARD */
+  .log-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .notif-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--high);
+    box-shadow: 0 0 0 3px rgba(226,75,74,0.2);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(226,75,74,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(226,75,74,0.05); }
+  }
+
+  .log-header-text { flex: 1; }
+  .log-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .log-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* SLIDER AREA */
+  .emotion-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .value-display {
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .big-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
+    transition: color 0.25s ease;
+    display: block;
+  }
+
+  .value-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+    min-height: 16px;
+    transition: color 0.25s ease;
+    display: block;
+  }
+
+  .slider-wrap { padding: 4px 0 16px; }
+
+  input[type="range"].emotion-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--surface2);
+    outline: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.1s;
+  }
+
+  input[type="range"].emotion-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2.5px solid var(--high);
+    cursor: pointer;
+    transition: border-color 0.25s ease, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  input[type="range"].emotion-range:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  input[type="range"].emotion-range::-moz-range-thumb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2.5px solid var(--high);
+    cursor: pointer;
+  }
+
+  .ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 1px;
+  }
+  .tick { font-size: 10px; color: var(--muted); }
+
+  /* CONFIRM BUTTON */
+  .confirm-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: var(--high);
+    color: white;
+    transition: background 0.25s ease, transform 0.1s, opacity 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .confirm-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+  /* NOTIF TOGGLE */
+  .notif-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  .notif-left { display: flex; align-items: center; gap: 10px; }
+  .notif-icon-wrap {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .notif-info-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .notif-info-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .toggle-switch {
+    width: 44px; height: 24px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toggle-switch.on { background: var(--calm); border-color: var(--calm); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 2.5px; left: 3px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle-switch.on::after { left: 23px; }
+
+  /* DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 4px; }
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .chart-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .chart-label { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 12px; }
+  canvas { display: block; }
+
+  .entries-title {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    padding: 0 2px;
+  }
+
+  .entry-item {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .entry-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    min-width: 44px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-datetime { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .entry-desc { font-size: 12px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-bar-bg { height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .entry-bar-fill { height: 100%; border-radius: 2px; }
+
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--surface);
+    border: 0.5px dashed var(--border2);
+    border-radius: 14px;
+    line-height: 1.7;
+  }
+  .empty strong { display: block; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(20px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* SUCCESS FLASH */
+  .success-flash {
+    position: fixed;
+    inset: 0;
+    background: rgba(29,158,117,0.12);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 100;
+  }
+  .success-flash.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="logo">wzbu<em>rzenie</em></div>
+    <div class="time-badge" id="timeBadge">—</div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="show('log')">rejestruj</button>
+    <button class="nav-btn" onclick="show('dash')">dashboard</button>
+  </nav>
+
+  <!-- LOG SCREEN -->
+  <div class="screen active" id="screen-log">
+
+    <div class="perm-banner hidden" id="permBanner">
+      <span class="perm-icon">🔔</span>
+      <div class="perm-text">
+        <strong>Włącz powiadomienia</strong>
+        Dostaniesz przypomnienie co godzinę
+      </div>
+      <button class="perm-btn" onclick="requestNotifPermission()">włącz</button>
+    </div>
+
+    <div class="log-card">
+      <div class="log-header">
+        <div class="notif-dot"></div>
+        <div class="log-header-text">
+          <div class="log-title">Jak się teraz czujesz?</div>
+          <div class="log-subtitle" id="logSubtitle">oceń poziom wzburzenia</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="emotion-label">wzburzenie</div>
+        <div class="value-display">
+          <span class="big-number" id="bigNumber">50</span>
+          <span class="value-desc" id="valueDesc">umiarkowane</span>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" class="emotion-range" id="slider" min="0" max="100" step="10" value="50"
+            oninput="onSlider(this.value)">
+          <div class="ticks">
+            <span class="tick">0</span>
+            <span class="tick">20</span>
+            <span class="tick">40</span>
+            <span class="tick">60</span>
+            <span class="tick">80</span>
+            <span class="tick">100</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="confirm-btn" id="confirmBtn" onclick="saveEntry()">zatwierdź</button>
+    </div>
+
+    <div class="notif-row">
+      <div class="notif-left">
+        <div class="notif-icon-wrap">🔔</div>
+        <div>
+          <div class="notif-info-title">Przypomnienia co godzinę</div>
+          <div class="notif-info-sub" id="notifStatusText">sprawdzanie…</div>
+        </div>
+      </div>
+      <div class="toggle-switch" id="notifToggle" onclick="toggleNotif()"></div>
+    </div>
+
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="screen-dash">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">śr. dziś</div>
+        <div class="stat-val" id="statAvg">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">maks.</div>
+        <div class="stat-val" id="statMax">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">wpisów</div>
+        <div class="stat-val" id="statCount">0</div>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chartCard" style="display:none">
+      <div class="chart-label">ostatnie pomiary</div>
+      <canvas id="chart" height="90"></canvas>
+    </div>
+
+    <div class="entries-title" id="entriesTitle"></div>
+    <div id="entriesList"></div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="success-flash" id="flash"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const DESCS = {
+  0:'całkowity spokój', 10:'bardzo spokojny', 20:'spokojny',
+  30:'lekko spokojny', 40:'neutralny', 50:'umiarkowane',
+  60:'nieco wzburzony', 70:'wzburzony', 80:'mocno wzburzony',
+  90:'bardzo wzburzony', 100:'ekstremalnie wzburzony'
+};
+
+function getColor(v) {
+  if (v <= 30) return '#1D9E75';
+  if (v <= 60) return '#EF9F27';
+  return '#E24B4A';
+}
+
+function load() {
+  try { return JSON.parse(localStorage.getItem('wzburzenie_entries') || '[]')
+    .map(e => ({ ...e, time: new Date(e.time) })); }
+  catch { return []; }
+}
+
+function save(entries) {
+  localStorage.setItem('wzburzenie_entries',
+    JSON.stringify(entries.map(e => ({ ...e, time: e.time.toISOString() }))));
+}
+
+let entries = load();
+let notifActive = false;
+
+// ─── SLIDER ─────────────────────────────────────────────
+function onSlider(v) {
+  v = parseInt(v);
+  const col = getColor(v);
+  document.getElementById('bigNumber').textContent = v;
+  document.getElementById('bigNumber').style.color = col;
+  document.getElementById('valueDesc').textContent = DESCS[v] || '';
+  document.getElementById('valueDesc').style.color = col;
+
+  const slider = document.getElementById('slider');
+  slider.style.background =
+    `linear-gradient(to right, ${col} ${v}%, #222220 ${v}%)`;
+  slider.style.setProperty('--thumb-col', col);
+
+  const btn = document.getElementById('confirmBtn');
+  btn.style.background = col;
+}
+
+// init slider
+onSlider(50);
+
+// ─── SAVE ENTRY ─────────────────────────────────────────
+function saveEntry() {
+  const val = parseInt(document.getElementById('slider').value);
+  entries.unshift({ val, time: new Date() });
+  save(entries);
+  toast('Zapisano: ' + val);
+  flash();
+  document.getElementById('slider').value = 50;
+  onSlider(50);
+}
+
+function flash() {
+  const el = document.getElementById('flash');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 400);
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────
+function show(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'dash') renderDash();
+}
+
+// ─── DASHBOARD ──────────────────────────────────────────
+function renderDash() {
+  const n = entries.length;
+  document.getElementById('statCount').textContent = n;
+
+  if (!n) {
+    document.getElementById('statAvg').textContent = '—';
+    document.getElementById('statMax').textContent = '—';
+    document.getElementById('entriesTitle').textContent = '';
+    document.getElementById('entriesList').innerHTML =
+      '<div class="empty"><strong>Brak wpisów</strong>Przejdź do zakładki "rejestruj" i zacznij śledzić wzburzenie.</div>';
+    document.getElementById('chartCard').style.display = 'none';
+    return;
+  }
+
+  const today = new Date().toDateString();
+  const todayE = entries.filter(e => e.time.toDateString() === today);
+  const avg = todayE.length
+    ? Math.round(todayE.reduce((s, e) => s + e.val, 0) / todayE.length) : null;
+  const maxE = entries.reduce((m, e) => e.val > m.val ? e : m, entries[0]);
+
+  const avgEl = document.getElementById('statAvg');
+  avgEl.textContent = avg !== null ? avg : '—';
+  if (avg !== null) avgEl.style.color = getColor(avg);
+
+  const maxEl = document.getElementById('statMax');
+  maxEl.textContent = maxE.val;
+  maxEl.style.color = getColor(maxE.val);
+
+  // Chart
+  if (n >= 2) {
+    document.getElementById('chartCard').style.display = 'block';
+    setTimeout(drawChart, 30);
+  }
+
+  // List
+  document.getElementById('entriesTitle').textContent = 'historia wpisów';
+  const list = document.getElementById('entriesList');
+  list.innerHTML = '';
+  entries.slice(0, 50).forEach(e => {
+    const col = getColor(e.val);
+    const dt = e.time.toLocaleString('pl-PL', {
+      weekday: 'short', day: '2-digit', month: 'short',
+      hour: '2-digit', minute: '2-digit'
+    });
+    const item = document.createElement('div');
+    item.className = 'entry-item';
+    item.innerHTML = `
+      <div class="entry-score" style="color:${col}">${e.val}</div>
+      <div class="entry-info">
+        <div class="entry-datetime">${dt}</div>
+        <div class="entry-desc">${DESCS[e.val] || ''}</div>
+        <div class="entry-bar-bg">
+          <div class="entry-bar-fill" style="width:${e.val}%;background:${col}"></div>
+        </div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+function drawChart() {
+  const canvas = document.getElementById('chart');
+  if (!canvas || entries.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 32;
+  const H = 90;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const data = entries.slice(0, 12).reverse();
+  const np = data.length;
+  const px = 8, py = 12;
+  const xStep = (W - px * 2) / Math.max(np - 1, 1);
+
+  // grid lines
+  [0, 50, 100].forEach(v => {
+    const y = H - py - (v / 100) * (H - py * 2);
+    ctx.beginPath();
+    ctx.moveTo(px, y); ctx.lineTo(W - px, y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+
+  // line
+  ctx.beginPath();
+  data.forEach((e, i) => {
+    const x = px + i * xStep;
+    const y = H - py - (e.val / 100) * (H - py * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = 'rgba(226,75,74,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // dots
+  data.forEach((e, i) => {
+    const x = px + i * xStep;
+    const y = H - py - (e.val / 100) * (H - py * 2);
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = getColor(e.val);
+    ctx.fill();
+  });
+}
+
+// ─── TIME ────────────────────────────────────────────────
+function updateTime() {
+  const now = new Date();
+  document.getElementById('timeBadge').textContent =
+    now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('logSubtitle').textContent =
+    now.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+updateTime();
+setInterval(updateTime, 10000);
+
+// ─── TOAST ───────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── NOTIFICATIONS ───────────────────────────────────────
+async function checkNotifStatus() {
+  if (!('Notification' in window)) {
+    document.getElementById('notifStatusText').textContent = 'niedostępne w tej przeglądarce';
+    return;
+  }
+  const perm = Notification.permission;
+  if (perm === 'granted') {
+    setNotifUI(true);
+    startNotifScheduler();
+  } else if (perm === 'denied') {
+    document.getElementById('notifStatusText').textContent = 'zablokowane — odblokuj w ustawieniach';
+    document.getElementById('notifToggle').style.opacity = '0.4';
+    document.getElementById('notifToggle').style.pointerEvents = 'none';
+  } else {
+    document.getElementById('permBanner').classList.remove('hidden');
+    document.getElementById('notifStatusText').textContent = 'wymaga zgody';
+    setNotifUI(false);
+  }
+}
+
+async function requestNotifPermission() {
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    document.getElementById('permBanner').classList.add('hidden');
+    setNotifUI(true);
+    startNotifScheduler();
+    toast('Powiadomienia włączone!');
+  } else {
+    toast('Brak zgody na powiadomienia');
+  }
+}
+
+function setNotifUI(on) {
+  notifActive = on;
+  const tog = document.getElementById('notifToggle');
+  tog.classList.toggle('on', on);
+  document.getElementById('notifStatusText').textContent =
+    on ? 'aktywne — przypomnienie co godzinę' : 'wyłączone';
+}
+
+async function toggleNotif() {
+  if (Notification.permission !== 'granted') {
+    await requestNotifPermission();
+    return;
+  }
+  notifActive = !notifActive;
+  setNotifUI(notifActive);
+  if (notifActive) {
+    startNotifScheduler();
+    toast('Przypomnienia włączone');
+  } else {
+    stopNotifScheduler();
+    toast('Przypomnienia wyłączone');
+  }
+}
+
+let notifTimer = null;
+let lastNotifHour = -1;
+
+function startNotifScheduler() {
+  if (notifTimer) return;
+  lastNotifHour = new Date().getHours();
+  notifTimer = setInterval(checkHour, 30000);
+}
+
+function stopNotifScheduler() {
+  if (notifTimer) { clearInterval(notifTimer); notifTimer = null; }
+}
+
+function checkHour() {
+  if (!notifActive) return;
+  const h = new Date().getHours();
+  if (h !== lastNotifHour) {
+    lastNotifHour = h;
+    sendHourlyNotif();
+  }
+}
+
+function sendHourlyNotif() {
+  if (Notification.permission !== 'granted') return;
+  const n = new Notification('Wzburzenie — czas na wpis', {
+    body: 'Jak się teraz czujesz? Oceń poziom wzburzenia.',
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%230f0f0e"/><text x="96" y="130" font-size="110" text-anchor="middle" fill="%23E24B4A">⚡</text></svg>',
+    tag: 'wzburzenie-hourly',
+    renotify: true
+  });
+  n.onclick = () => { window.focus(); n.close(); };
+}
+
+// ─── SERVICE WORKER ──────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+checkNotifStatus();
+</script>
+</body>
+</html>
