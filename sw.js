@@ -1,8 +1,14 @@
-const CACHE = 'wzburzenie-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'wkurwomir-v2';
+const ASSETS = [
+  '/pastel/',
+  '/pastel/index.html',
+  '/pastel/manifest.json',
+  '/pastel/icon-192.svg',
+  '/pastel/icon-512.svg'
+];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {})));
   self.skipWaiting();
 });
 
@@ -15,7 +21,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/pastel/index.html')))
   );
 });
 
@@ -24,33 +30,7 @@ self.addEventListener('notificationclick', e => {
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       if (list.length > 0) return list[0].focus();
-      return clients.openWindow('/');
+      return clients.openWindow('/pastel/');
     })
   );
 });
-
-self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SCHEDULE_NOTIF') {
-    scheduleNext();
-  }
-});
-
-function scheduleNext() {
-  const now = new Date();
-  const next = new Date(now);
-  next.setHours(next.getHours() + 1, 0, 0, 0);
-  const delay = next - now;
-
-  setTimeout(() => {
-    self.registration.showNotification('Wzburzenie — czas na wpis', {
-      body: 'Jak się teraz czujesz? Oceń poziom wzburzenia.',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      tag: 'hourly-check',
-      renotify: true,
-      requireInteraction: false,
-      vibrate: [200, 100, 200]
-    });
-    scheduleNext();
-  }, delay);
-}

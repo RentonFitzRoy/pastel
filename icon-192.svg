@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="#0f0f0e"/>
+
+  <!-- Hulk face - green skin -->
+  <ellipse cx="96" cy="104" rx="52" ry="56" fill="#4a9e2f"/>
+
+  <!-- Hulk forehead / top of head -->
+  <ellipse cx="96" cy="72" rx="46" ry="34" fill="#4a9e2f"/>
+
+  <!-- Hair - dark -->
+  <ellipse cx="96" cy="52" rx="46" ry="18" fill="#1a2e0f"/>
+  <rect x="50" y="42" width="92" height="18" fill="#1a2e0f"/>
+
+  <!-- Brow ridge - angry -->
+  <rect x="54" y="82" width="36" height="10" rx="5" fill="#2d6e1a" transform="rotate(-12 72 87)"/>
+  <rect x="102" y="82" width="36" height="10" rx="5" fill="#2d6e1a" transform="rotate(12 120 87)"/>
+
+  <!-- Eyes - white -->
+  <ellipse cx="78" cy="98" rx="13" ry="10" fill="white"/>
+  <ellipse cx="114" cy="98" rx="13" ry="10" fill="white"/>
+
+  <!-- Pupils -->
+  <ellipse cx="80" cy="99" rx="7" ry="7" fill="#1a1a00"/>
+  <ellipse cx="116" cy="99" rx="7" ry="7" fill="#1a1a00"/>
+
+  <!-- Eye shine -->
+  <ellipse cx="83" cy="96" rx="2.5" ry="2.5" fill="white"/>
+  <ellipse cx="119" cy="96" rx="2.5" ry="2.5" fill="white"/>
+
+  <!-- Nose -->
+  <ellipse cx="96" cy="114" rx="8" ry="5" fill="#3a8024"/>
+  <ellipse cx="91" cy="115" rx="4" ry="3.5" fill="#2d6e1a"/>
+  <ellipse cx="101" cy="115" rx="4" ry="3.5" fill="#2d6e1a"/>
+
+  <!-- Angry mouth -->
+  <path d="M 72 130 Q 96 122 120 130" stroke="#1a2e0f" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Teeth -->
+  <rect x="82" y="124" width="10" height="8" rx="2" fill="white"/>
+  <rect x="94" y="124" width="10" height="8" rx="2" fill="white"/>
+  <rect x="106" y="124" width="10" height="8" rx="2" fill="white"/>
+
+  <!-- Chin -->
+  <ellipse cx="96" cy="150" rx="36" ry="14" fill="#4a9e2f"/>
+
+  <!-- Ears -->
+  <ellipse cx="44" cy="100" rx="12" ry="16" fill="#4a9e2f"/>
+  <ellipse cx="148" cy="100" rx="12" ry="16" fill="#4a9e2f"/>
+</svg>

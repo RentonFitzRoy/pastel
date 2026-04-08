@@ -1,8 +1,9 @@
 {
-  "name": "Napięcie — tracker emocji",
+  "name": "Wkurwomir",
   "short_name": "Wkurwomir",
-  "description": "Rejestruj poziom swojego stanu emocjonalnego w ciągu dnia",
+  "description": "Tracker poziomu wzburzenia",
   "start_url": "/pastel/index.html",
+  "scope": "/pastel/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f0f0e",
@@ -10,18 +11,17 @@
   "lang": "pl",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%230f0f0e'/><text x='96' y='130' font-size='110' text-anchor='middle' fill='%23E24B4A'>⚡</text></svg>",
+      "src": "icon-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0e'/><text x='256' y='350' font-size='300' text-anchor='middle' fill='%23E24B4A'>⚡</text></svg>",
+      "src": "icon-512.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "lifestyle"],
-  "screenshots": []
+  "categories": ["health", "lifestyle"]
 }
